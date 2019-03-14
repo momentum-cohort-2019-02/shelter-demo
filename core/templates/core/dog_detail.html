@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ dog.name }}</h1>
+
+<div class="mw6">
+  <img src="{{ dog.picture.url }}" alt="{{ dog.name }}, {{ dog.description }}">
+</div>
+
+{% if request.user.is_authenticated %}
+<form action="{% url 'dog_favorite' dog_pk=dog.pk %}" method="POST">
+  {% csrf_token %}
+  <button type="submit">
+    {% if dog in request.user.favorite_dogs.all %}
+      Unfavorite
+    {% else %}
+      Favorite
+    {% endif %}
+    this dog</button>
+</form>
+{% endif %}
+
+<p>
+  {{ dog.favorited_by.count }} {{ dog.favorited_by.count|pluralize:"person has,people have" }}
+  favorited this dog.
+</p>
+
+{% if dog.events.count %}
+<div class="mv2">
+  <h2>Upcoming events with {{ dog.name }}</h2>
+  <ul>
+    {% for event in dog.events.all %}
+      <li><a href="{% url 'event_detail' slug=event.slug %}">{{ event.title }}</a> ({{event.start_at}} - {{event.end_at}})</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% if request.user.is_authenticated %}
+<div class="mb5">
+  <h2>Apply to adopt {{ dog.name }}</h2>
+  <form method="POST" action="{{ dog.get_absolute_url }}">
+    {% csrf_token %}
+    {{ application_form.as_p }}
+    <p>
+      <button type="submit">Submit application</button>
+    </p>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

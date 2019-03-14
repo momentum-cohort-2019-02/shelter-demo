@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+<h2>Adopt a Dog</h2>
+<section class="search pa3 bg-light-gray">
+  <h3 class="search__title mb0">Show me dogs that are...</h3>
+  <form method="GET" action="{% url 'index' %}">
+    <div class="flex mb3">
+      <div class="mr5">
+        <h4><label for="{{ search_form.age.id_for_label }}">Age</label></h4>
+        {% for radio in search_form.age %}
+        <div>
+          {{ radio }}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="mr5">
+        <h4><label for="{{ search_form.size.id_for_label }}">Size</label></h4>
+        {% for checkbox in search_form.size %}
+        <div>
+          {{ checkbox }}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="mr5">
+        <h4>Qualities</h4>
+        <div>          
+          {{ search_form.good_with_kids }}
+          {{ search_form.good_with_kids.label_tag }}
+        </div>
+        <div>          
+          {{ search_form.good_with_dogs }}
+          {{ search_form.good_with_dogs.label_tag }}
+        </div>
+        <div>          
+          {{ search_form.good_with_cats }}
+          {{ search_form.good_with_cats.label_tag }}
+        </div>
+      </div>
+    </div>
+    <button type="submit">Search</button>
+    <a href="{% url "index" %}">Reset search</a>
+  </form>
+</section>
+<section>
+  <div class="flex flex-wrap justify-between">      
+    {% for dog in dogs %}
+      <div class="w-30-l w-40-m w-100 mr3 mt3 mb3">
+        {% if dog.picture %}        
+          <a href="{% url 'dog_detail' dog_pk=dog.pk %}"><img src="{{ dog.picture.url }}" alt="{{ dog.name }}, {{ dog.description }}"></a>
+        {% endif %}
+        <div class="fw6 tracked-tight f4">          
+            <a href="{% url 'dog_detail' dog_pk=dog.pk %}">{{ dog.name }}</a>
+        </div>
+        <div>
+          {% for trait in dog.get_traits %}
+          <span class="br-pill pv1 ph2 dib mv1 bg-lightest-blue">{{ trait }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% empty %}
+      <p>
+        No dogs matched your search.
+        Would you like to <a href="{% url "index" %}">see all dogs</a>?
+      </p>
+    {% endfor %}
+    <div class="pagination mb6">
+      <span class="step-links">
+          {% if dogs.has_previous %}
+              <a href="?page=1">&laquo; first</a>
+              <a href="?page={{ dogs.previous_page_number }}">previous</a>
+          {% endif %}
+  
+          <span class="current">
+              Page {{ dogs.number }} of {{ dogs.paginator.num_pages }}.
+          </span>
+  
+          {% if dogs.has_next %}
+              <a href="?page={{ dogs.next_page_number }}">next</a>
+              <a href="?page={{ dogs.paginator.num_pages }}">last &raquo;</a>
+          {% endif %}
+      </span>
+    </div>
+  </div>
+</section>
+{% endblock %}
